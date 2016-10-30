@@ -282,9 +282,9 @@ public class MapActivity extends AppCompatActivity {
                         map_buildings[i].coordinates
                 });
 
-                bldgIntent.putExtra("BUILDING_IMAGE_NAME", map_buildings[i].getImage_resource_name());
-                bldgIntent.putExtra("LAST_KNOWN_COORDINATES", strCurrUserLoc);
-                bldgIntent.putExtra("BLDG_MAP_COORDINATES", map_buildings[i].coordinates);
+                bldgIntent.putExtra("BUILDING_NAME", map_buildings[i].getImage_resource_name());
+                bldgIntent.putExtra("COORDINATES", strCurrUserLoc);
+                bldgIntent.putExtra("BLDG_COORDINATES", map_buildings[i].coordinates);
                 startActivity(bldgIntent);
 
 

@@ -27,14 +27,14 @@ import java.net.URL;
 public class BuildingActivity extends AppCompatActivity {
 
     //All statics for Google apis
-    public static final String STR_GOOG_BASE_URL = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=";
-    public static final String STR_GOOG_DEST_URL = "&destinations=";
+    public static final String STR_GOOG_API_BASE_URL = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=";
+    public static final String STR_GOOG_API_DEST_URL = "&destinations=";
     public static final String STR_GOOG_API_KEY = "&key=AIzaSyApv0T1SWbV7IKFWFDYl9o8T4VxZgX2fxc";
-    public static final String STR_GOOG_MODE = "&mode=walking";
-    public static String STR_BUILDING_COORDS_STREETVIEW = "46.414382,10.013988"; //Default to amphiteater
+    public static final String STR_GOOG_API_MODE = "&mode=walking";
+    public static String STR_BUILDING_COORDS_STREETVIEW = "46.414382,10.013988";
     public static int requestCodeStreetView = 1333;
 
-    TextView building_info_textview;
+    TextView building_info;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,11 +57,11 @@ public class BuildingActivity extends AppCompatActivity {
 
         //Retrieve building data
         String[] building_details = getIntent().getStringArrayExtra("BUILDING_DETAILS");
-        String last_known_user_coordinates = getIntent().getStringExtra("LAST_KNOWN_COORDINATES");
-        String building_map_coordinates = getIntent().getStringExtra("BLDG_MAP_COORDINATES");
+        String last_known_user_coordinates = getIntent().getStringExtra("COORDINATES");
+        String building_map_coordinates = getIntent().getStringExtra("BLDG_COORDINATES");
 
         //Set up basic info about the building
-        building_info_textview = (TextView) findViewById(R.id.bldg_textView);
+        building_info = (TextView) findViewById(R.id.bldg_textView);
         String str_building_info_joined_string = "";
 
         str_building_info_joined_string = building_details[0].toUpperCase() + "\n\n";
@@ -69,12 +69,12 @@ public class BuildingActivity extends AppCompatActivity {
         //DEBUG:
         STR_BUILDING_COORDS_STREETVIEW = building_details[2];
 
-        building_info_textview.setText(str_building_info_joined_string);
+        building_info.setText(str_building_info_joined_string);
 
 
         //Start AsyncTask here
-        String url = STR_GOOG_BASE_URL + last_known_user_coordinates + STR_GOOG_DEST_URL + building_map_coordinates + STR_GOOG_MODE + STR_GOOG_API_KEY;
-        new FetchTimeEstimateTask().execute(url);
+        String url = STR_GOOG_API_BASE_URL + last_known_user_coordinates + STR_GOOG_API_DEST_URL + building_map_coordinates + STR_GOOG_API_MODE + STR_GOOG_API_KEY;
+        new TimeEstimateTask().execute(url);
 
     }
 
@@ -108,7 +108,7 @@ public class BuildingActivity extends AppCompatActivity {
     }
 
     //Write out AsyncTask to retrieve location distance and time
-    private class FetchTimeEstimateTask extends AsyncTask<String, Integer, String> {
+    private class TimeEstimateTask extends AsyncTask<String, Integer, String> {
 
         @Override
         protected String doInBackground(String... args){
@@ -116,32 +116,31 @@ public class BuildingActivity extends AppCompatActivity {
             // These two need to be declared outside the try/catch
             // so that they can be closed in the finally block.
             String url_weather = args[0];
-            Log.d("BuildingActivity", "FetchTimeEstimateTask: doInBackground : "  + url_weather);
-            HttpURLConnection urlConnection = null;
-            BufferedReader reader = null;
+            HttpURLConnection uConnection = null;
+            BufferedReader bufferedReader = null;
 
             // Will contain the raw JSON response as a string.
-            String timeEstimateJsonStr = null;
+            String JsonStr = null;
 
             try {
                 URL url = new URL(url_weather);
 
                 // Create the request to google distance matrix, and open the connection
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
+                uConnection = (HttpURLConnection) url.openConnection();
+                uConnection.setRequestMethod("GET");
+                uConnection.connect();
 
                 // Read the input stream into a String
-                InputStream inputStream = urlConnection.getInputStream();
+                InputStream inputStream = uConnection.getInputStream();
                 StringBuffer buffer = new StringBuffer();
                 if (inputStream == null) {
                     // Nothing to do.
                     return null;
                 }
-                reader = new BufferedReader(new InputStreamReader(inputStream));
+                bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
 
                 String line;
-                while ((line = reader.readLine()) != null) {
+                while ((line = bufferedReader.readLine()) != null) {
                     buffer.append(line + "\n");
                 }
 
@@ -149,58 +148,57 @@ public class BuildingActivity extends AppCompatActivity {
                 if (buffer.length() == 0) {
                     return null;
                 }
-                timeEstimateJsonStr = buffer.toString();
-                Log.d("BuildingActivity", timeEstimateJsonStr);
+                JsonStr = buffer.toString();
+
             }
             catch (IOException e) {
-                Log.e("BuildingActivity", "Error ", e);
-                // If the code didn't successfully get the weather data, there's no point in attemping
-                // to parse it.
+
+                
                 return null;
             }
             finally{
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
+                if (uConnection != null) {
+                    uConnection.disconnect();
                 }
-                if (reader != null) {
+                if (bufferedReader != null) {
                     try {
-                        reader.close();
+                        bufferedReader.close();
                     } catch (final IOException e) {
-                        Log.e("BuildingActivity", "Error closing stream", e);
+
                     }
                 }
             }
 
-            return timeEstimateJsonStr;//for success
-        }//End of doInBackground
+            return JsonStr;//for success
+        }
 
         protected void onPostExecute(String resultJsonString) {
-            Log.d("BuildingActivity", "Done executing in the background");
-            String strTimeToTarget = "";
-            String strDistanceToTarget = "";
 
-            String text = building_info_textview.getText().toString();
+            String TimeToTarget = "";
+            String DistanceToTarget = "";
+
+            String text = building_info.getText().toString();
             //Parse json object here
             try {
 
-                JSONObject jsonObject = new JSONObject(resultJsonString);
-                JSONArray jsonArray = jsonObject.getJSONArray("rows");
-                JSONObject jsonRows =  jsonArray.getJSONObject(0);
-                JSONArray jsonElementArray = jsonRows.getJSONArray("elements");
+                JSONObject Object = new JSONObject(resultJsonString);
+                JSONArray Array = Object.getJSONArray("rows");
+                JSONObject Rows =  Array.getJSONObject(0);
+                JSONArray ElementArray = Rows.getJSONArray("elements");
                 //Get distance
-                JSONObject jsonElementObject = jsonElementArray.getJSONObject(0);
-                JSONObject jsonDistance = jsonElementObject.getJSONObject("distance");
-                strDistanceToTarget = jsonDistance.getString("text");
+                JSONObject ElementObject = ElementArray.getJSONObject(0);
+                JSONObject Distance = ElementObject.getJSONObject("distance");
+                DistanceToTarget = Distance.getString("text");
                 //Get time
-                JSONObject jsonDuration = jsonElementObject.getJSONObject("duration");
-                strTimeToTarget = jsonDuration.getString("text");
+                JSONObject Duration = ElementObject.getJSONObject("duration");
+                TimeToTarget = Duration.getString("text");
 
             }
             catch (JSONException e) {
                 e.printStackTrace();
             }
 
-            building_info_textview.setText(text + "TIME FROM CURRENT LOCATION: \n" +  strTimeToTarget + "\n\n" + "DISTANCE TO LOCATION: \n" + strDistanceToTarget);
+            building_info.setText(text + "TIME FROM CURRENT LOCATION: \n" +  TimeToTarget + "\n\n" + "DISTANCE TO LOCATION: \n" + DistanceToTarget);
         }
 
     }//End of async task

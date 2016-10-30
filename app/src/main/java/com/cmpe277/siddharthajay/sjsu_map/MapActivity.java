@@ -34,59 +34,24 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 public class MapActivity extends AppCompatActivity {
-
+    
     public static final String LocationProvider = LocationManager.NETWORK_PROVIDER;
 
-
-    public static final double STATIC_PIXEL_DISTANCE = 2.1679;
-    public static final int CURRENT_LOCATION_SCALE_CORRECTER = 700;
-    //Resource handles
+    public static CircleMarkerView circlemarker;
     public static AutoCompleteTextView sjsumap_search_bar;
     public static MarkerView marker;
-    public static CircleMarkerView circlemarker;
-    public static int intXAxisPlotOffset = -20, intYAxisPlotOffset = 600;
-    public static ImageView sjsumapImageView;
     public static Matrix mapMatrix = new Matrix();
-
-
-    //Geolocation statics
+    public static ImageView sjsumapImageView;
     public final static double OneEightyDeg = 180.0d;
     public static double ImageSizeW = 1407, ImageSizeH = 1486.0;
-
-
-    //Current location
     public static Location locCurrLocation;
     public static Location locCurrHardCodedLocation;
     public static String strCurrUserLatitude = "";
     public static String strCurrUserLongitude = "";
-    private static final String[] LOC_PERMS = {
-            Manifest.permission.ACCESS_FINE_LOCATION
-    };
-    public static final int REQ_CODE = 1337;
-    public static final int LOC_REQ_CODE = REQ_CODE;
-    public static final int LOC_MIN_TIME = 30000;
-    public static final int LOC_MIN_DISTANCE = 10;
     public static String strCurrUserLoc = "";
-
-    public static String strSjsuMapTopLeft = "37.335802,-121.885910";
-    public static String strSjsuMapTopRight = "37.338877,-121.879668";
-    public static String strSjsuMapBottomLeft = "37.331626,-121.882812";
-    public static String strSjsuMapBottomRight = "37.334603,-121.876557";
     public static Location locSjsuMapTopLeft, locSjsuMapTopRight, locSjsuMapBottomLeft, locSjsuMapBottomRight;
-
     private static LocationManager mLocationManager;
-
     public static final int BUILDING_COUNT = 6;
-
-    private static final int[] BUILDING_RESOURCE_NAMES = new int[]{
-            R.drawable.engineering_building,
-            R.drawable.kinglibrary,
-            R.drawable.yoshihiro,
-            R.drawable.student_union,
-            R.drawable.bbc,
-            R.drawable.south_garage
-    };
-
     public static final String[] GEOCOORDINATES = new String[]{
             "37.337359,-121.881909",
             "37.335716,-121.885213",
@@ -95,15 +60,22 @@ public class MapActivity extends AppCompatActivity {
             "37.336530,-121.878717",
             "37.333385,-121.880264"
     };
-
-
-    public static final String[] ADDRESSES = new String[]{
-            "Charles W. Davidson College of Engineering, 1 Washington Square, San Jose, CA 95112",
-            "Dr. Martin Luther King, Jr. Library, 150 East San Fernando Street, San Jose, CA 95112",
-            "Yoshihiro Uchida Hall, San Jose, CA 95112",
-            "Student Union Building, San Jose, CA 95112",
-            "Boccardo Business Complex, San Jose, CA 95112",
-            "San Jose State University South Garage, 330 South 7th Street, San Jose, CA 95112"
+    private static final int[] BUILDING_RESOURCE_NAMES = new int[]{
+            R.drawable.engineering_building,
+            R.drawable.king,
+            R.drawable.yoshihiro,
+            R.drawable.student_union,
+            R.drawable.bbc,
+            R.drawable.south_garage
+    };
+    public static final float[][] coordinates = new float[][]{
+            //           TLX  TRY  TRX  BRY
+            new float[]{749, 529, 960, 720}, //ENGR BUILDING
+            new float[]{193, 493, 312, 690}, //KING LIBRARY
+            new float[]{107, 974, 319, 1146}, //YOSHIHIRO HALL
+            new float[]{745, 758, 1046, 881}, //STUDENT UNION
+            new float[]{1160, 880, 1333, 990}, //bbc
+            new float[]{458, 1332, 708, 1504} //SOUTH PARKING
     };
 
     public static final String[] LOCATIONS = new String[]{
@@ -115,16 +87,14 @@ public class MapActivity extends AppCompatActivity {
             "South Parking Garage"
     };
 
-    public static final float[][] coordinates = new float[][]{
-            //           TLX  TRY  TRX  BRY
-            new float[]{749, 529, 960, 720}, //ENGR BUILDING
-            new float[]{193, 493, 312, 690}, //KING LIBRARY
-            new float[]{107, 974, 319, 1146}, //YOSHIHIRO HALL
-            new float[]{745, 758, 1046, 881}, //STUDENT UNION
-            new float[]{1160, 880, 1333, 990}, //bbc
-            new float[]{458, 1332, 708, 1504} //SOUTH PARKING
+    public static final String[] ADDRESSES = new String[]{
+            "Charles W. Davidson College of Engineering, 1 Washington Square, San Jose, CA 95112",
+            "Dr. Martin Luther King, Jr. Library, 150 East San Fernando Street, San Jose, CA 95112",
+            "Yoshihiro Uchida Hall, San Jose, CA 95112",
+            "Student Union Building, San Jose, CA 95112",
+            "Boccardo Business Complex, San Jose, CA 95112",
+            "San Jose State University South Garage, 330 South 7th Street, San Jose, CA 95112"
     };
-
     public Building[] map_buildings = new Building[BUILDING_COUNT];
 
     public static String strHardCodedCurrentLocation = "37.333492,-121.883756";
@@ -139,10 +109,10 @@ public class MapActivity extends AppCompatActivity {
         marker = new MarkerView(this);
 
         //Get latitudes and longitudes of map ready
-        locSjsuMapTopLeft = GetLocationFromStrings(strSjsuMapTopLeft);
-        locSjsuMapTopRight = GetLocationFromStrings(strSjsuMapTopRight);
-        locSjsuMapBottomLeft = GetLocationFromStrings(strSjsuMapBottomLeft);
-        locSjsuMapBottomRight = GetLocationFromStrings(strSjsuMapBottomRight);
+        locSjsuMapTopLeft = GetLocationFromStrings(Constants.strSjsuMapTopLeft);
+        locSjsuMapTopRight = GetLocationFromStrings(Constants.strSjsuMapTopRight);
+        locSjsuMapBottomLeft = GetLocationFromStrings(Constants.strSjsuMapBottomLeft);
+        locSjsuMapBottomRight = GetLocationFromStrings(Constants.strSjsuMapBottomRight);
         locCurrHardCodedLocation = ConvertStringToLatLng(strHardCodedCurrentLocation);
 
         //Moving to here because Android complains about constructor
@@ -290,7 +260,7 @@ public class MapActivity extends AppCompatActivity {
 
             }
             //DEBUG:
-            //PlotPin(this, x + intXAxisPlotOffset, y + intYAxisPlotOffset);
+            //PlotPin(this, x + INT_XAXIS_PLOT_OFFSET, y + INT_YAXIS_PLOT_OFFSET);
         }
 
     }
@@ -316,8 +286,8 @@ public class MapActivity extends AppCompatActivity {
 
     private void PlotPin(Context context, float x, float y) {
         //Normalize incoming pixels
-        x = x + intXAxisPlotOffset;
-        y = y + intYAxisPlotOffset;
+        x = x + Constants.INT_XAXIS_PLOT_OFFSET;
+        y = y + Constants.INT_YAXIS_PLOT_OFFSET;
 
         RelativeLayout map_layout = (RelativeLayout) findViewById(R.id.activity_map);
         marker = new MarkerView(context);
@@ -392,8 +362,8 @@ public class MapActivity extends AppCompatActivity {
         double current_y_dist = hypot_current_loc * Math.sin(Math.toRadians(diffAngle));
 
 
-        double current_x_pixels = STATIC_PIXEL_DISTANCE * current_x_dist;
-        double current_y_pixels = STATIC_PIXEL_DISTANCE * current_y_dist;
+        double current_x_pixels = Constants.STATIC_PIXEL_DISTANCE * current_x_dist;
+        double current_y_pixels = Constants.STATIC_PIXEL_DISTANCE * current_y_dist;
 
         //Get the old points floated out
         float current_X = (float) current_x_pixels;
@@ -412,8 +382,8 @@ public class MapActivity extends AppCompatActivity {
 
     private void PlotCircle(Context context, float x, float y) {
         //Normalize incoming pixels
-        x = x + intXAxisPlotOffset;
-        y = y + intYAxisPlotOffset + CURRENT_LOCATION_SCALE_CORRECTER;
+        x = x + Constants.INT_XAXIS_PLOT_OFFSET;
+        y = y + Constants.INT_YAXIS_PLOT_OFFSET + Constants.CURRENT_LOCATION_SCALE_CORRECTER;
 
         RelativeLayout map_layout = (RelativeLayout) findViewById(R.id.activity_map);
 
@@ -501,7 +471,7 @@ public class MapActivity extends AppCompatActivity {
             }
             location = mLocationManager.getLastKnownLocation(LocationProvider);
 
-            mLocationManager.requestLocationUpdates(LocationProvider, LOC_MIN_TIME, LOC_MIN_DISTANCE, mLocationListener);
+            mLocationManager.requestLocationUpdates(LocationProvider, Constants.LOC_MIN_TIME, Constants.LOC_MIN_DISTANCE, mLocationListener);
 
             if (location != null) {
                 strCurrUserLatitude = Location.convert(location.getLatitude(), Location.FORMAT_DEGREES);
@@ -514,7 +484,7 @@ public class MapActivity extends AppCompatActivity {
             }
         }
         //BUG: fix for all versions of android
-        requestPermissions(LOC_PERMS, LOC_REQ_CODE);
+        requestPermissions(Constants.LOC_PERMS, Constants.LOC_REQ_CODE);
     }
 
     //Let's handle user's location now
@@ -557,12 +527,12 @@ public class MapActivity extends AppCompatActivity {
     //Now we need to handle it after getting appropriate permissions:
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == LOC_REQ_CODE) {
+        if (requestCode == Constants.LOC_REQ_CODE) {
             if (ActivityCompat.checkSelfPermission(this,
                     Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                     && ActivityCompat.checkSelfPermission(this,
                     Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                mLocationManager.requestLocationUpdates(LocationProvider, LOC_MIN_TIME, LOC_MIN_DISTANCE, mLocationListener);
+                mLocationManager.requestLocationUpdates(LocationProvider, Constants.LOC_MIN_TIME, Constants.LOC_MIN_DISTANCE, mLocationListener);
                 //DEBUG:
                 //mLocationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, mLocationListener, null);
             }

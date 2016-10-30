@@ -79,8 +79,8 @@ public class MapActivity extends AppCompatActivity {
     public static final int BUILDING_COUNT = 6;
 
     private static final int[] BUILDING_RESOURCE_NAMES = new int[]{
-            R.drawable.sjsu_engineering_web,
-            R.drawable.king,
+            R.drawable.engineering_building,
+            R.drawable.kinglibrary,
             R.drawable.yoshihiro,
             R.drawable.student_union,
             R.drawable.bbc,

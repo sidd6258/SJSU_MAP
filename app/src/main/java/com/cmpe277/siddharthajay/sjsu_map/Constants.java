@@ -59,4 +59,17 @@ public class Constants {
     };
     public static String strHardCodedCurrentLocation = "37.333492,-121.883756";
 
+    public static final String STR_GOOG_API_BASE_URL = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=";
+    public static final String STR_GOOG_API_DEST_URL = "&destinations=";
+    public static final String STR_GOOG_API_KEY = "&key=AIzaSyApv0T1SWbV7IKFWFDYl9o8T4VxZgX2fxc";
+    public static final String STR_GOOG_API_MODE = "&mode=walking";
+    public static String STR_BUILDING_COORDS_STREETVIEW = "46.414382,10.013988";
+    public static int requestCodeStreetView = 1333;
+
+
+    public static final int TOP_LEFT_X = 0;
+    public static final int TOP_RIGHT_Y = 1;
+    public static final int TOP_RIGHT_X = 2;
+    public static final int BOTTOM_RIGHT_Y = 3;
+
 }

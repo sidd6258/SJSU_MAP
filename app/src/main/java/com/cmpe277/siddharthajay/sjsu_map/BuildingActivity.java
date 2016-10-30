@@ -27,12 +27,7 @@ import java.net.URL;
 public class BuildingActivity extends AppCompatActivity {
 
     //All statics for Google apis
-    public static final String STR_GOOG_API_BASE_URL = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=";
-    public static final String STR_GOOG_API_DEST_URL = "&destinations=";
-    public static final String STR_GOOG_API_KEY = "&key=AIzaSyApv0T1SWbV7IKFWFDYl9o8T4VxZgX2fxc";
-    public static final String STR_GOOG_API_MODE = "&mode=walking";
-    public static String STR_BUILDING_COORDS_STREETVIEW = "46.414382,10.013988";
-    public static int requestCodeStreetView = 1333;
+
 
     TextView building_info;
 
@@ -63,13 +58,13 @@ public class BuildingActivity extends AppCompatActivity {
         str_building_info = buildingdetails[0].toUpperCase() + "\n\n";
         str_building_info += "ADDRESS: \n" + buildingdetails[1] + "\n\n";
         //DEBUG:
-        STR_BUILDING_COORDS_STREETVIEW = buildingdetails[2];
+        Constants.STR_BUILDING_COORDS_STREETVIEW = buildingdetails[2];
 
         building_info.setText(str_building_info);
 
 
         //Start AsyncTask here
-        String url = STR_GOOG_API_BASE_URL + user_coordinates + STR_GOOG_API_DEST_URL + building_coordinates + STR_GOOG_API_MODE + STR_GOOG_API_KEY;
+        String url = Constants.STR_GOOG_API_BASE_URL + user_coordinates + Constants.STR_GOOG_API_DEST_URL + building_coordinates + Constants.STR_GOOG_API_MODE + Constants.STR_GOOG_API_KEY;
         new TimeEstimateTask().execute(url);
 
     }
@@ -85,18 +80,18 @@ public class BuildingActivity extends AppCompatActivity {
 
     //Trigger street view, with the current building coordinates
     public void btnStreetViewLauncher(View view) {
-        String strStreetView = "google.streetview:cbll=" + STR_BUILDING_COORDS_STREETVIEW;
+        String strStreetView = "google.streetview:cbll=" + Constants.STR_BUILDING_COORDS_STREETVIEW;
         Uri gmmIntentUri = Uri.parse(strStreetView);
         Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
         mapIntent.setPackage("com.google.android.apps.maps");
-        startActivityForResult(mapIntent, requestCodeStreetView);
+        startActivityForResult(mapIntent, Constants.requestCodeStreetView);
     }
 
     //If we don't do this, then hitting back from streetview takes you to the map
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == requestCodeStreetView){
+        if(requestCode == Constants.requestCodeStreetView){
             if(requestCode == RESULT_OK){
                 //User is back from street view
             }

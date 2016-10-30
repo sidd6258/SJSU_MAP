@@ -51,15 +51,6 @@ public class MapActivity extends AppCompatActivity {
     public static String strCurrUserLoc = "";
     public static Location locSjsuMapTopLeft, locSjsuMapTopRight, locSjsuMapBottomLeft, locSjsuMapBottomRight;
     private static LocationManager mLocationManager;
-    public static final int BUILDING_COUNT = 6;
-    public static final String[] GEOCOORDINATES = new String[]{
-            "37.337359,-121.881909",
-            "37.335716,-121.885213",
-            "37.333492,-121.883756",
-            "37.336361,-121.881282",
-            "37.336530,-121.878717",
-            "37.333385,-121.880264"
-    };
     private static final int[] BUILDING_RESOURCE_NAMES = new int[]{
             R.drawable.engineering_building,
             R.drawable.king,
@@ -68,36 +59,9 @@ public class MapActivity extends AppCompatActivity {
             R.drawable.bbc,
             R.drawable.south_garage
     };
-    public static final float[][] coordinates = new float[][]{
-            //           TLX  TRY  TRX  BRY
-            new float[]{749, 529, 960, 720}, //ENGR BUILDING
-            new float[]{193, 493, 312, 690}, //KING LIBRARY
-            new float[]{107, 974, 319, 1146}, //YOSHIHIRO HALL
-            new float[]{745, 758, 1046, 881}, //STUDENT UNION
-            new float[]{1160, 880, 1333, 990}, //bbc
-            new float[]{458, 1332, 708, 1504} //SOUTH PARKING
-    };
+    public Building[] map_buildings = new Building[Constants.BUILDING_COUNT];
 
-    public static final String[] LOCATIONS = new String[]{
-            "Engineering Building",
-            "King Library",
-            "Yoshihiro Uchida Hall",
-            "Student Union",
-            "bbc",
-            "South Parking Garage"
-    };
 
-    public static final String[] ADDRESSES = new String[]{
-            "Charles W. Davidson College of Engineering, 1 Washington Square, San Jose, CA 95112",
-            "Dr. Martin Luther King, Jr. Library, 150 East San Fernando Street, San Jose, CA 95112",
-            "Yoshihiro Uchida Hall, San Jose, CA 95112",
-            "Student Union Building, San Jose, CA 95112",
-            "Boccardo Business Complex, San Jose, CA 95112",
-            "San Jose State University South Garage, 330 South 7th Street, San Jose, CA 95112"
-    };
-    public Building[] map_buildings = new Building[BUILDING_COUNT];
-
-    public static String strHardCodedCurrentLocation = "37.333492,-121.883756";
 
 
     @Override
@@ -113,13 +77,13 @@ public class MapActivity extends AppCompatActivity {
         locSjsuMapTopRight = GetLocationFromStrings(Constants.strSjsuMapTopRight);
         locSjsuMapBottomLeft = GetLocationFromStrings(Constants.strSjsuMapBottomLeft);
         locSjsuMapBottomRight = GetLocationFromStrings(Constants.strSjsuMapBottomRight);
-        locCurrHardCodedLocation = ConvertStringToLatLng(strHardCodedCurrentLocation);
+        locCurrHardCodedLocation = ConvertStringToLatLng(Constants.strHardCodedCurrentLocation);
 
         //Moving to here because Android complains about constructor
-        for (int i = 0; i < BUILDING_COUNT; i++) {
-            map_buildings[i] = new Building(LOCATIONS[i], coordinates[i]);
-            map_buildings[i].setAddress(ADDRESSES[i]);
-            map_buildings[i].setCoordinates(GEOCOORDINATES[i]);
+        for (int i = 0; i < Constants.BUILDING_COUNT; i++) {
+            map_buildings[i] = new Building(Constants.LOCATIONS[i], Constants.coordinates[i]);
+            map_buildings[i].setAddress(Constants.ADDRESSES[i]);
+            map_buildings[i].setCoordinates(Constants.GEOCOORDINATES[i]);
             map_buildings[i].setImage_resource_name(BUILDING_RESOURCE_NAMES[i]);
         }
 
@@ -140,7 +104,7 @@ public class MapActivity extends AppCompatActivity {
         window.setStatusBarColor(this.getResources().getColor(R.color.colorGreen));
 
         //Set up autocomplete
-        ArrayAdapter<String> searchArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, LOCATIONS);
+        ArrayAdapter<String> searchArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, Constants.LOCATIONS);
         sjsumap_search_bar.setAdapter(searchArrayAdapter);
         sjsumap_search_bar.setThreshold(0);
 
@@ -179,8 +143,8 @@ public class MapActivity extends AppCompatActivity {
 
         int building_count = -1;
         search_text = search_text.toLowerCase();
-        for (int i = 0; i < LOCATIONS.length; i++) {
-            if (search_text.equals(LOCATIONS[i].toLowerCase())) {
+        for (int i = 0; i < Constants.LOCATIONS.length; i++) {
+            if (search_text.equals(Constants.LOCATIONS[i].toLowerCase())) {
                 building_count = i;
                 break;
             }
@@ -242,7 +206,7 @@ public class MapActivity extends AppCompatActivity {
 
     private void ProcessTouchCoordinate(View v, float x, float y) {
 
-        for (int i = 0; i < BUILDING_COUNT; i++) {
+        for (int i = 0; i < Constants.BUILDING_COUNT; i++) {
             if (map_buildings[i].IsWithinPixelBounds(x, y)) {
                 //Toast.makeText(v.getContext(), map_buildings[i].building_name, Toast.LENGTH_SHORT).show();
                 Intent bldgIntent = new Intent(this, BuildingActivity.class);
@@ -295,50 +259,6 @@ public class MapActivity extends AppCompatActivity {
         map_layout.addView(marker);
     }
 
-
-    private void TestStaticLocations(Location locMapTopLeft, Location locMapTopRight,
-                                     Location locMapBottomLeft, Location locMapBottomRight) {
-
-        //Test out hardcoded map locations here
-        //Last test = Clark hall - ACCURATE
-        //Location locTestLocation = ConvertStringToLatLng("37.336322,-121.882402");
-
-        //Music building - ACCURATE
-        //Location locTestLocation = ConvertStringToLatLng("37.335605,-121.880868");
-
-        //Engineering building - ACCURATE
-        //Location locTestLocation = ConvertStringToLatLng("37.336714,-121.881522");
-
-        //Morris auditorium - BIT OFF
-        //Location locTestLocation = ConvertStringToLatLng("37.335289,-121.883142");
-
-        //YUCHIRO hall - WAY OFF
-        //Location locTestLocation = ConvertStringToLatLng("37.333617,-121.883861");
-
-        //West parking garage - BIT OFF
-        //Location locTestLocation = ConvertStringToLatLng("37.332679,-121.883153");
-
-        //Student union - ACCURATE
-        //Location locTestLocation = ConvertStringToLatLng("37.336526,-121.880921");
-
-        //Cooling plant - ACCURATE
-        //Location locTestLocation = ConvertStringToLatLng("37.336193,-121.878475");
-
-        //Campus west - BIT OFF
-        //Location locTestLocation = ConvertStringToLatLng("37.334427,-121.877370");
-
-        //Dining commons - BIT OFF
-        //Location locTestLocation = ConvertStringToLatLng("37.334188, -121.878529");
-
-        //South parking garage
-        Location locTestLocation = ConvertStringToLatLng("37.333233, -121.880814");
-
-        //MLK building
-        //Location locTestLocation = ConvertStringToLatLng("37.335724,-121.884934");
-
-        ExecutePlotCurrentUserOnMap(locMapTopLeft, locMapTopRight, locMapBottomLeft, locMapBottomRight, locTestLocation);
-
-    }
 
 
     private void ExecutePlotCurrentUserOnMap(Location locMapTopLeft, Location locMapTopRight,

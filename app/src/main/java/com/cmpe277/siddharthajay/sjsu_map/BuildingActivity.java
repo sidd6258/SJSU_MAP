@@ -44,11 +44,7 @@ public class BuildingActivity extends AppCompatActivity {
         //Set up building toolbar
         Toolbar map_toolbar = (Toolbar) findViewById(R.id.map_toolbar);
         setSupportActionBar(map_toolbar);
-        /*final Drawable upArrow = getResources().getDrawable(R.drawable.abc_ic_ab_back_material);
-        upArrow.setColorFilter(getResources().getColor(R.color.colorWhite), PorterDuff.Mode.SRC_ATOP);
-        getSupportActionBar().setHomeAsUpIndicator(upArrow);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-*/
+
         //Set up status bar
         Window window = this.getWindow();
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
@@ -57,23 +53,23 @@ public class BuildingActivity extends AppCompatActivity {
 
         //Retrieve building data
         String[] building_details = getIntent().getStringArrayExtra("BUILDING_DETAILS");
-        String last_known_user_coordinates = getIntent().getStringExtra("COORDINATES");
-        String building_map_coordinates = getIntent().getStringExtra("BLDG_COORDINATES");
+        String user_coordinates = getIntent().getStringExtra("COORDINATES");
+        String building_coordinates = getIntent().getStringExtra("BLDG_COORDINATES");
 
         //Set up basic info about the building
         building_info = (TextView) findViewById(R.id.bldg_textView);
-        String str_building_info_joined_string = "";
+        String str_building_info = "";
 
-        str_building_info_joined_string = building_details[0].toUpperCase() + "\n\n";
-        str_building_info_joined_string += "ADDRESS: \n" + building_details[1] + "\n\n";
+        str_building_info = building_details[0].toUpperCase() + "\n\n";
+        str_building_info += "ADDRESS: \n" + building_details[1] + "\n\n";
         //DEBUG:
         STR_BUILDING_COORDS_STREETVIEW = building_details[2];
 
-        building_info.setText(str_building_info_joined_string);
+        building_info.setText(str_building_info);
 
 
         //Start AsyncTask here
-        String url = STR_GOOG_API_BASE_URL + last_known_user_coordinates + STR_GOOG_API_DEST_URL + building_map_coordinates + STR_GOOG_API_MODE + STR_GOOG_API_KEY;
+        String url = STR_GOOG_API_BASE_URL + user_coordinates + STR_GOOG_API_DEST_URL + building_coordinates + STR_GOOG_API_MODE + STR_GOOG_API_KEY;
         new TimeEstimateTask().execute(url);
 
     }
@@ -81,7 +77,7 @@ public class BuildingActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        int building_image_resource_id = getIntent().getIntExtra("BUILDING_IMAGE_NAME", R.drawable.bbc);
+        int building_image_resource_id = getIntent().getIntExtra("BUILDING_NAME", R.drawable.bbc);
         //Set up building image
         ImageView buildingImageView = (ImageView) findViewById(R.id.bldg_imageView);
         buildingImageView.setImageResource(building_image_resource_id);
@@ -107,8 +103,37 @@ public class BuildingActivity extends AppCompatActivity {
         }
     }
 
-    //Write out AsyncTask to retrieve location distance and time
+    //AsyncTask to retrieve location matrix
     private class TimeEstimateTask extends AsyncTask<String, Integer, String> {
+
+        protected void onPostExecute(String resultJsonString) {
+
+            String TimeToTarget = "";
+            String DistanceToTarget = "";
+
+            String text = building_info.getText().toString();
+            //Parse json 
+            try {
+
+                JSONObject Object = new JSONObject(resultJsonString);
+                JSONArray Array = Object.getJSONArray("rows");
+                JSONObject Rows =  Array.getJSONObject(0);
+                JSONArray ElementArray = Rows.getJSONArray("elements");
+                //Get distance
+                JSONObject ElementObject = ElementArray.getJSONObject(0);
+                JSONObject Distance = ElementObject.getJSONObject("distance");
+                DistanceToTarget = Distance.getString("text");
+                //Get time
+                JSONObject Duration = ElementObject.getJSONObject("duration");
+                TimeToTarget = Duration.getString("text");
+
+            }
+            catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            building_info.setText(text + "TIME FROM CURRENT LOCATION: \n" +  TimeToTarget + "\n\n" + "DISTANCE TO LOCATION: \n" + DistanceToTarget);
+        }
 
         @Override
         protected String doInBackground(String... args){
@@ -172,34 +197,7 @@ public class BuildingActivity extends AppCompatActivity {
             return JsonStr;//for success
         }
 
-        protected void onPostExecute(String resultJsonString) {
 
-            String TimeToTarget = "";
-            String DistanceToTarget = "";
-
-            String text = building_info.getText().toString();
-            //Parse json object here
-            try {
-
-                JSONObject Object = new JSONObject(resultJsonString);
-                JSONArray Array = Object.getJSONArray("rows");
-                JSONObject Rows =  Array.getJSONObject(0);
-                JSONArray ElementArray = Rows.getJSONArray("elements");
-                //Get distance
-                JSONObject ElementObject = ElementArray.getJSONObject(0);
-                JSONObject Distance = ElementObject.getJSONObject("distance");
-                DistanceToTarget = Distance.getString("text");
-                //Get time
-                JSONObject Duration = ElementObject.getJSONObject("duration");
-                TimeToTarget = Duration.getString("text");
-
-            }
-            catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-            building_info.setText(text + "TIME FROM CURRENT LOCATION: \n" +  TimeToTarget + "\n\n" + "DISTANCE TO LOCATION: \n" + DistanceToTarget);
-        }
 
     }//End of async task
 

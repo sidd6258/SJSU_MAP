@@ -41,18 +41,18 @@ public class BuildingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_building);
 
-        //Set up building toolbar
+        //building toolbar
         Toolbar map_toolbar = (Toolbar) findViewById(R.id.map_toolbar);
         setSupportActionBar(map_toolbar);
 
-        //Set up status bar
+        //status bar
         Window window = this.getWindow();
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         window.setStatusBarColor(this.getResources().getColor(R.color.colorGreen));
 
-        //Retrieve building data
-        String[] building_details = getIntent().getStringArrayExtra("BUILDING_DETAILS");
+        //building data
+        String[] buildingdetails = getIntent().getStringArrayExtra("BUILDING_DETAILS");
         String user_coordinates = getIntent().getStringExtra("COORDINATES");
         String building_coordinates = getIntent().getStringExtra("BLDG_COORDINATES");
 
@@ -60,10 +60,10 @@ public class BuildingActivity extends AppCompatActivity {
         building_info = (TextView) findViewById(R.id.bldg_textView);
         String str_building_info = "";
 
-        str_building_info = building_details[0].toUpperCase() + "\n\n";
-        str_building_info += "ADDRESS: \n" + building_details[1] + "\n\n";
+        str_building_info = buildingdetails[0].toUpperCase() + "\n\n";
+        str_building_info += "ADDRESS: \n" + buildingdetails[1] + "\n\n";
         //DEBUG:
-        STR_BUILDING_COORDS_STREETVIEW = building_details[2];
+        STR_BUILDING_COORDS_STREETVIEW = buildingdetails[2];
 
         building_info.setText(str_building_info);
 
@@ -112,7 +112,7 @@ public class BuildingActivity extends AppCompatActivity {
             String DistanceToTarget = "";
 
             String text = building_info.getText().toString();
-            //Parse json 
+            //Parse json
             try {
 
                 JSONObject Object = new JSONObject(resultJsonString);

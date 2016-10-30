@@ -38,14 +38,13 @@
         android:layout_alignParentEnd="true" />
 
     <ImageView
-        android:id="@+id/mapImageView"
+        android:id="@+id/sjsumapImageView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:adjustViewBounds="false"
         android:cropToPadding="false"
         android:scaleType="matrix"
         app:srcCompat="@drawable/campusmap"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/sjsumap_search_bar" />
 </RelativeLayout>

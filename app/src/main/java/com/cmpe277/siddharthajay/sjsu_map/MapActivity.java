@@ -55,32 +55,32 @@ public class MapActivity extends AppCompatActivity {
 
 
     //Current location
-    public static Location locCurrentLocation;
-    public static Location locCurrentHardCodedLocation;
-    public static String strCurrentUserLatitude = "";
-    public static String strCurrentUserLongitude = "";
-    private static final String[] LOCATION_PERMS = {
+    public static Location locCurrLocation;
+    public static Location locCurrHardCodedLocation;
+    public static String strCurrUserLatitude = "";
+    public static String strCurrUserLongitude = "";
+    private static final String[] LOC_PERMS = {
             Manifest.permission.ACCESS_FINE_LOCATION
     };
-    public static final int REQUEST_CODE = 1337;
-    public static final int LOCATION_REQUEST_CODE = REQUEST_CODE;
-    public static final int LOCATION_MIN_TIME = 30000;
-    public static final int LOCATION_MIN_DISTANCE = 10;
-    public static String strCurrentUserLocation = "";
+    public static final int REQ_CODE = 1337;
+    public static final int LOC_REQ_CODE = REQ_CODE;
+    public static final int LOC_MIN_TIME = 30000;
+    public static final int LOC_MIN_DISTANCE = 10;
+    public static String strCurrUserLoc = "";
 
-    public static String strMapTopLeft = "37.335802,-121.885910";
-    public static String strMapTopRight = "37.338877,-121.879668";
-    public static String strMapBottomLeft = "37.331626,-121.882812";
-    public static String strMapBottomRight = "37.334603,-121.876557";
-    public static Location locMapTopLeft, locMapTopRight, locMapBottomLeft, locMapBottomRight;
+    public static String strSjsuMapTopLeft = "37.335802,-121.885910";
+    public static String strSjsuMapTopRight = "37.338877,-121.879668";
+    public static String strSjsuMapBottomLeft = "37.331626,-121.882812";
+    public static String strSjsuMapBottomRight = "37.334603,-121.876557";
+    public static Location locSjsuMapTopLeft, locSjsuMapTopRight, locSjsuMapBottomLeft, locSjsuMapBottomRight;
 
     private static LocationManager mLocationManager;
 
-    public static final int TOTAL_BUILDING_COUNT = 6;
+    public static final int BUILDING_COUNT = 6;
 
     private static final int[] BUILDING_RESOURCE_NAMES = new int[]{
-            R.drawable.sjsu_engineering_web,
-            R.drawable.king,
+            R.drawable.engineering_building,
+            R.drawable.king_library,
             R.drawable.yoshihiro,
             R.drawable.student_union,
             R.drawable.bbc,
@@ -111,7 +111,7 @@ public class MapActivity extends AppCompatActivity {
             "King Library",
             "Yoshihiro Uchida Hall",
             "Student Union",
-            "BBC",
+            "bbc",
             "South Parking Garage"
     };
 
@@ -121,11 +121,11 @@ public class MapActivity extends AppCompatActivity {
             new float[]{193, 493, 312, 690}, //KING LIBRARY
             new float[]{107, 974, 319, 1146}, //YOSHIHIRO HALL
             new float[]{745, 758, 1046, 881}, //STUDENT UNION
-            new float[]{1160, 880, 1333, 990}, //BBC
+            new float[]{1160, 880, 1333, 990}, //bbc
             new float[]{458, 1332, 708, 1504} //SOUTH PARKING
     };
 
-    public Building[] map_buildings = new Building[TOTAL_BUILDING_COUNT];
+    public Building[] map_buildings = new Building[BUILDING_COUNT];
 
     public static String strHardCodedCurrentLocation = "37.333492,-121.883756";
 
@@ -139,14 +139,14 @@ public class MapActivity extends AppCompatActivity {
         marker = new MarkerView(this);
 
         //Get latitudes and longitudes of map ready
-        locMapTopLeft = GetLocationFromStrings(strMapTopLeft);
-        locMapTopRight = GetLocationFromStrings(strMapTopRight);
-        locMapBottomLeft = GetLocationFromStrings(strMapBottomLeft);
-        locMapBottomRight = GetLocationFromStrings(strMapBottomRight);
-        locCurrentHardCodedLocation = ConvertStringToLatLng(strHardCodedCurrentLocation);
+        locSjsuMapTopLeft = GetLocationFromStrings(strSjsuMapTopLeft);
+        locSjsuMapTopRight = GetLocationFromStrings(strSjsuMapTopRight);
+        locSjsuMapBottomLeft = GetLocationFromStrings(strSjsuMapBottomLeft);
+        locSjsuMapBottomRight = GetLocationFromStrings(strSjsuMapBottomRight);
+        locCurrHardCodedLocation = ConvertStringToLatLng(strHardCodedCurrentLocation);
 
         //Moving to here because Android complains about constructor
-        for (int i = 0; i < TOTAL_BUILDING_COUNT; i++) {
+        for (int i = 0; i < BUILDING_COUNT; i++) {
             map_buildings[i] = new Building(LOCATIONS[i], coordinates[i]);
             map_buildings[i].setAddress(ADDRESSES[i]);
             map_buildings[i].setCoordinates(GEOCOORDINATES[i]);
@@ -154,20 +154,20 @@ public class MapActivity extends AppCompatActivity {
         }
 
         //Get the image view
-        sjsumapImageView = (ImageView) findViewById(R.id.mapImageView);
+        sjsumapImageView = (ImageView) findViewById(R.id.sjsumapImageView);
 
         //Get the search bar
-        sjsumap_search_bar = (AutoCompleteTextView) findViewById(R.id.map_search_bar);
+        sjsumap_search_bar = (AutoCompleteTextView) findViewById(R.id.sjsumap_search_bar);
 
         //Set up map toolbar
-        Toolbar map_toolbar = (Toolbar) findViewById(R.id.map_toolbar);
+        Toolbar map_toolbar = (Toolbar) findViewById(R.id.sjsumap_toolbar);
         setSupportActionBar(map_toolbar);
 
         //Set up status bar
         Window window = this.getWindow();
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        window.setStatusBarColor(this.getResources().getColor(R.color.colorToolBar));
+        window.setStatusBarColor(this.getResources().getColor(R.color.colorGreen));
 
         //Set up autocomplete
         ArrayAdapter<String> searchArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, LOCATIONS);
@@ -178,19 +178,19 @@ public class MapActivity extends AppCompatActivity {
         sjsumapImageView.setOnTouchListener(map_touch_listener);
 
         //Start map at the center
-        CenterMapImage();
+        allignMapImage();
 
         //Test out current location code
         GetCurrentLocation(this);
-        Log.d("MainActivity", strCurrentUserLocation);
+        Log.d("MapActivity", strCurrUserLoc);
 
         //DEBUG:
-        //TestStaticLocations(locMapTopLeft, locMapTopRight, locMapBottomLeft, locMapBottomRight);
+        //TestStaticLocations(locSjsuMapTopLeft, locSjsuMapTopRight, locSjsuMapBottomLeft, locSjsuMapBottomRight);
     }
 
     public void updateCurrentUserLocationOnMap() {
 
-        ExecutePlotCurrentUserOnMap(locMapTopLeft, locMapTopRight, locMapBottomLeft, locMapBottomRight, locCurrentLocation);
+        ExecutePlotCurrentUserOnMap(locSjsuMapTopLeft, locSjsuMapTopRight, locSjsuMapBottomLeft, locSjsuMapBottomRight, locCurrLocation);
 
     }
 
@@ -200,7 +200,7 @@ public class MapActivity extends AppCompatActivity {
     //Get its coordinates - PlotPin
     public void btnSearchHandler(View v) {
 
-        AutoCompleteTextView auto_text = (AutoCompleteTextView) findViewById(R.id.map_search_bar);
+        AutoCompleteTextView auto_text = (AutoCompleteTextView) findViewById(R.id.sjsumap_search_bar);
         String search_text = auto_text.getText().toString();
 
         if (search_text.isEmpty() == true || search_text == "" || search_text == null) {
@@ -244,7 +244,7 @@ public class MapActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        final AutoCompleteTextView auto_text_view = (AutoCompleteTextView) findViewById(R.id.map_search_bar);
+        final AutoCompleteTextView auto_text_view = (AutoCompleteTextView) findViewById(R.id.sjsumap_search_bar);
         auto_text_view.addTextChangedListener(new TextWatcher() {
 
             @Override
@@ -272,7 +272,7 @@ public class MapActivity extends AppCompatActivity {
 
     private void ProcessTouchCoordinate(View v, float x, float y) {
 
-        for (int i = 0; i < TOTAL_BUILDING_COUNT; i++) {
+        for (int i = 0; i < BUILDING_COUNT; i++) {
             if (map_buildings[i].IsWithinPixelBounds(x, y)) {
                 //Toast.makeText(v.getContext(), map_buildings[i].building_name, Toast.LENGTH_SHORT).show();
                 Intent bldgIntent = new Intent(this, BuildingActivity.class);
@@ -283,7 +283,7 @@ public class MapActivity extends AppCompatActivity {
                 });
 
                 bldgIntent.putExtra("BUILDING_IMAGE_NAME", map_buildings[i].getImage_resource_name());
-                bldgIntent.putExtra("LAST_KNOWN_COORDINATES", strCurrentUserLocation);
+                bldgIntent.putExtra("LAST_KNOWN_COORDINATES", strCurrUserLoc);
                 bldgIntent.putExtra("BLDG_MAP_COORDINATES", map_buildings[i].coordinates);
                 startActivity(bldgIntent);
 
@@ -427,7 +427,7 @@ public class MapActivity extends AppCompatActivity {
     }
 
 
-    private void CenterMapImage() {
+    private void allignMapImage() {
         //Get image dimensions
         Drawable mapDrawable = sjsumapImageView.getDrawable();
         float imageWidth = mapDrawable.getIntrinsicWidth();
@@ -501,20 +501,20 @@ public class MapActivity extends AppCompatActivity {
             }
             location = mLocationManager.getLastKnownLocation(LocationProvider);
 
-            mLocationManager.requestLocationUpdates(LocationProvider, LOCATION_MIN_TIME, LOCATION_MIN_DISTANCE, mLocationListener);
+            mLocationManager.requestLocationUpdates(LocationProvider, LOC_MIN_TIME, LOC_MIN_DISTANCE, mLocationListener);
 
             if (location != null) {
-                strCurrentUserLatitude = Location.convert(location.getLatitude(), Location.FORMAT_DEGREES);
-                strCurrentUserLongitude = Location.convert(location.getLongitude(), Location.FORMAT_DEGREES);
-                strCurrentUserLocation = strCurrentUserLatitude + "," + strCurrentUserLongitude;
-                locCurrentLocation = location;
-                Log.d("MainActivity", "Location of user is currently: " + strCurrentUserLocation);
+                strCurrUserLatitude = Location.convert(location.getLatitude(), Location.FORMAT_DEGREES);
+                strCurrUserLongitude = Location.convert(location.getLongitude(), Location.FORMAT_DEGREES);
+                strCurrUserLoc = strCurrUserLatitude + "," + strCurrUserLongitude;
+                locCurrLocation = location;
+                Log.d("MainActivity", "Location of user is currently: " + strCurrUserLoc);
                 updateCurrentUserLocationOnMap(); //when app starts up
                 return;
             }
         }
         //BUG: fix for all versions of android
-        requestPermissions(LOCATION_PERMS, LOCATION_REQUEST_CODE);
+        requestPermissions(LOC_PERMS, LOC_REQ_CODE);
     }
 
     //Let's handle user's location now
@@ -523,18 +523,18 @@ public class MapActivity extends AppCompatActivity {
         @Override
         public void onLocationChanged(final Location location) {
 
-            strCurrentUserLatitude = Location.convert(location.getLatitude(), Location.FORMAT_DEGREES);
-            strCurrentUserLongitude = Location.convert(location.getLongitude(), Location.FORMAT_DEGREES);
-            strCurrentUserLocation = strCurrentUserLatitude + "," + strCurrentUserLongitude;
+            strCurrUserLatitude = Location.convert(location.getLatitude(), Location.FORMAT_DEGREES);
+            strCurrUserLongitude = Location.convert(location.getLongitude(), Location.FORMAT_DEGREES);
+            strCurrUserLoc = strCurrUserLatitude + "," + strCurrUserLongitude;
 
 
             //String location_string = "geo:37.7749,-122.4194";
-            String location_string = "geo:" + strCurrentUserLatitude + "," + strCurrentUserLongitude;
+            String location_string = "geo:" + strCurrUserLatitude + "," + strCurrUserLongitude;
             Log.d("MainActivity", "Location changed: "+ location_string);
 
             //Update current user location and strings
-            strCurrentUserLocation = strCurrentUserLatitude + "," + strCurrentUserLongitude;
-            locCurrentLocation = location;
+            strCurrUserLoc = strCurrUserLatitude + "," + strCurrUserLongitude;
+            locCurrLocation = location;
 
             //Call after current location is known to continuously plot user on map
             updateCurrentUserLocationOnMap(); //When users location changes (once every minute?)
@@ -557,12 +557,12 @@ public class MapActivity extends AppCompatActivity {
     //Now we need to handle it after getting appropriate permissions:
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == LOCATION_REQUEST_CODE) {
+        if (requestCode == LOC_REQ_CODE) {
             if (ActivityCompat.checkSelfPermission(this,
                     Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                     && ActivityCompat.checkSelfPermission(this,
                     Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                mLocationManager.requestLocationUpdates(LocationProvider, LOCATION_MIN_TIME, LOCATION_MIN_DISTANCE, mLocationListener);
+                mLocationManager.requestLocationUpdates(LocationProvider, LOC_MIN_TIME, LOC_MIN_DISTANCE, mLocationListener);
                 //DEBUG:
                 //mLocationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, mLocationListener, null);
             }

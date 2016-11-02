@@ -34,7 +34,7 @@ public class BuildingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_building);
 
         //building toolbar
-        Toolbar map_toolbar = (Toolbar) findViewById(R.id.map_toolbar);
+        Toolbar map_toolbar = (Toolbar) findViewById(R.id.sjsumap_toolbar);
         setSupportActionBar(map_toolbar);
 
         //status bar
@@ -49,7 +49,7 @@ public class BuildingActivity extends AppCompatActivity {
         String building_coordinates = getIntent().getStringExtra("BLDG_COORDINATES");
 
         // building info
-        building_info = (TextView) findViewById(R.id.bldg_textView);
+        building_info = (TextView) findViewById(R.id.sjsubldg_textView);
         String str_building_info = "";
 
         str_building_info = buildingdetails[0].toUpperCase() + "\n\n";
@@ -71,7 +71,7 @@ public class BuildingActivity extends AppCompatActivity {
         super.onResume();
         int building_image_resource_id = getIntent().getIntExtra("BUILDING_NAME", R.drawable.bbc);
         //building image
-        ImageView buildingImageView = (ImageView) findViewById(R.id.bldg_imageView);
+        ImageView buildingImageView = (ImageView) findViewById(R.id.sjsubldg_imageView);
         buildingImageView.setImageResource(building_image_resource_id);
     }
 

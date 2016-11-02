@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     tools:context="com.cmpe277.siddharthajay.sjsu_map.BuildingActivity">
     <android.support.v7.widget.Toolbar
-        android:id="@+id/map_toolbar"
+        android:id="@+id/sjsumap_toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@android:color/holo_green_light"
@@ -18,7 +18,7 @@
         app:titleTextColor="#FFFFFF" />
 
     <TextView
-        android:id="@+id/bldg_textView"
+        android:id="@+id/sjsubldg_textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
@@ -31,7 +31,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:srcCompat="@drawable/king"
-        android:id="@+id/bldg_imageView"
+        android:id="@+id/sjsubldg_imageView"
         android:layout_below="@id/bldg_textView"
         android:layout_alignParentStart="true"
         android:layout_above="@+id/imageView" />
@@ -40,7 +40,7 @@
         android:layout_width="60dp"
         android:layout_height="60dp"
         app:srcCompat="@drawable/streetview"
-        android:id="@+id/btnStreetView"
+        android:id="@+id/sjsubtnStreetView"
         android:onClick="btnStreetViewLauncher"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true" />

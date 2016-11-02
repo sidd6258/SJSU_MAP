@@ -171,7 +171,7 @@ public class BuildingActivity extends AppCompatActivity {
             }
             catch (IOException e) {
 
-                
+
                 return null;
             }
             finally{

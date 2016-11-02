@@ -23,7 +23,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/map_toolbar"
+        android:layout_below="@+id/sjsumap_toolbar"
         android:layout_marginStart="6dp"
         android:text="Building Details: " />
 
@@ -32,9 +32,9 @@
         android:layout_height="match_parent"
         app:srcCompat="@drawable/king"
         android:id="@+id/sjsubldg_imageView"
-        android:layout_below="@id/bldg_textView"
+        android:layout_below="@id/sjsubldg_textView"
         android:layout_alignParentStart="true"
-        android:layout_above="@+id/imageView" />
+        />
 
     <ImageView
         android:layout_width="60dp"

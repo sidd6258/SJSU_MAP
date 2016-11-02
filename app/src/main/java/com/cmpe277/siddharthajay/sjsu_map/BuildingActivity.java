@@ -6,7 +6,6 @@ import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -25,8 +24,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class BuildingActivity extends AppCompatActivity {
-
-    //All statics for Google apis
 
 
     TextView building_info;
@@ -51,19 +48,19 @@ public class BuildingActivity extends AppCompatActivity {
         String user_coordinates = getIntent().getStringExtra("COORDINATES");
         String building_coordinates = getIntent().getStringExtra("BLDG_COORDINATES");
 
-        //Set up basic info about the building
+        // building info
         building_info = (TextView) findViewById(R.id.bldg_textView);
         String str_building_info = "";
 
         str_building_info = buildingdetails[0].toUpperCase() + "\n\n";
         str_building_info += "ADDRESS: \n" + buildingdetails[1] + "\n\n";
-        //DEBUG:
+
         Constants.STR_BUILDING_COORDS_STREETVIEW = buildingdetails[2];
 
         building_info.setText(str_building_info);
 
 
-        //Start AsyncTask here
+        // AsyncTask
         String url = Constants.STR_GOOG_API_BASE_URL + user_coordinates + Constants.STR_GOOG_API_DEST_URL + building_coordinates + Constants.STR_GOOG_API_MODE + Constants.STR_GOOG_API_KEY;
         new TimeEstimateTask().execute(url);
 
@@ -73,12 +70,12 @@ public class BuildingActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         int building_image_resource_id = getIntent().getIntExtra("BUILDING_NAME", R.drawable.bbc);
-        //Set up building image
+        //building image
         ImageView buildingImageView = (ImageView) findViewById(R.id.bldg_imageView);
         buildingImageView.setImageResource(building_image_resource_id);
     }
 
-    //Trigger street view, with the current building coordinates
+    //Trigger street view
     public void btnStreetViewLauncher(View view) {
         String strStreetView = "google.streetview:cbll=" + Constants.STR_BUILDING_COORDS_STREETVIEW;
         Uri gmmIntentUri = Uri.parse(strStreetView);
@@ -87,7 +84,7 @@ public class BuildingActivity extends AppCompatActivity {
         startActivityForResult(mapIntent, Constants.requestCodeStreetView);
     }
 
-    //If we don't do this, then hitting back from streetview takes you to the map
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -111,7 +108,9 @@ public class BuildingActivity extends AppCompatActivity {
             try {
 
                 JSONObject Object = new JSONObject(resultJsonString);
+                System.out.println(Object);
                 JSONArray Array = Object.getJSONArray("rows");
+                System.out.println(Array);
                 JSONObject Rows =  Array.getJSONObject(0);
                 JSONArray ElementArray = Rows.getJSONArray("elements");
                 //Get distance
@@ -133,28 +132,27 @@ public class BuildingActivity extends AppCompatActivity {
         @Override
         protected String doInBackground(String... args){
 
-            // These two need to be declared outside the try/catch
-            // so that they can be closed in the finally block.
+
             String url_weather = args[0];
             HttpURLConnection uConnection = null;
             BufferedReader bufferedReader = null;
 
-            // Will contain the raw JSON response as a string.
+            //  raw JSON response holder.
             String JsonStr = null;
 
             try {
                 URL url = new URL(url_weather);
 
-                // Create the request to google distance matrix, and open the connection
+
                 uConnection = (HttpURLConnection) url.openConnection();
                 uConnection.setRequestMethod("GET");
                 uConnection.connect();
 
-                // Read the input stream into a String
+                // store input stream
                 InputStream inputStream = uConnection.getInputStream();
                 StringBuffer buffer = new StringBuffer();
                 if (inputStream == null) {
-                    // Nothing to do.
+
                     return null;
                 }
                 bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
@@ -164,7 +162,7 @@ public class BuildingActivity extends AppCompatActivity {
                     buffer.append(line + "\n");
                 }
 
-                //Check for null stream
+                //null check
                 if (buffer.length() == 0) {
                     return null;
                 }
@@ -189,12 +187,12 @@ public class BuildingActivity extends AppCompatActivity {
                 }
             }
 
-            return JsonStr;//for success
+            return JsonStr;
         }
 
 
 
-    }//End of async task
+    }
 
 
 }

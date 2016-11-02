@@ -23,7 +23,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
-import android.util.Log;
+
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
@@ -42,8 +42,8 @@ public class MapActivity extends AppCompatActivity {
     public static MarkerView marker;
     public static Matrix mapMatrix = new Matrix();
     public static ImageView sjsumapImageView;
-    public final static double OneEightyDeg = 180.0d;
-    public static double ImageSizeW = 1407, ImageSizeH = 1486.0;
+    /*public final static double OneEightyDeg = 180.0d;
+    public static double ImageSizeW = 1407, ImageSizeH = 1486.0;*/
     public static Location locCurrLocation;
     public static Location locCurrHardCodedLocation;
     public static String strCurrUserLatitude = "";
@@ -72,14 +72,14 @@ public class MapActivity extends AppCompatActivity {
         //Intializing
         marker = new MarkerView(this);
 
-        //Get latitudes and longitudes of map ready
+        //Get lat long
         locSjsuMapTopLeft = GetLocationFromStrings(Constants.strSjsuMapTopLeft);
         locSjsuMapTopRight = GetLocationFromStrings(Constants.strSjsuMapTopRight);
         locSjsuMapBottomLeft = GetLocationFromStrings(Constants.strSjsuMapBottomLeft);
         locSjsuMapBottomRight = GetLocationFromStrings(Constants.strSjsuMapBottomRight);
         locCurrHardCodedLocation = ConvertStringToLatLng(Constants.strHardCodedCurrentLocation);
 
-        //Moving to here because Android complains about constructor
+
         for (int i = 0; i < Constants.BUILDING_COUNT; i++) {
             map_buildings[i] = new Building(Constants.LOCATIONS[i], Constants.coordinates[i]);
             map_buildings[i].setAddress(Constants.ADDRESSES[i]);
@@ -87,39 +87,38 @@ public class MapActivity extends AppCompatActivity {
             map_buildings[i].setImage_resource_name(BUILDING_RESOURCE_NAMES[i]);
         }
 
-        //Get the image view
+        //image view
         sjsumapImageView = (ImageView) findViewById(R.id.sjsumapImageView);
 
-        //Get the search bar
+        //search bar
         sjsumap_search_bar = (AutoCompleteTextView) findViewById(R.id.sjsumap_search_bar);
 
-        //Set up map toolbar
+        //map toolbar
         Toolbar map_toolbar = (Toolbar) findViewById(R.id.sjsumap_toolbar);
         setSupportActionBar(map_toolbar);
 
-        //Set up status bar
+        //status bar
         Window window = this.getWindow();
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         window.setStatusBarColor(this.getResources().getColor(R.color.colorGreen));
 
-        //Set up autocomplete
+        //autocomplete
         ArrayAdapter<String> searchArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, Constants.LOCATIONS);
         sjsumap_search_bar.setAdapter(searchArrayAdapter);
         sjsumap_search_bar.setThreshold(0);
 
-        //Set up touch
+        //touch
         sjsumapImageView.setOnTouchListener(map_touch_listener);
 
-        //Start map at the center
-        allignMapImage();
+        //center the map
+        allignImage();
+        System.out.println("in");
+        //Test location code
+        getUserLocation(this);
 
-        //Test out current location code
-        GetCurrentLocation(this);
-        Log.d("MapActivity", strCurrUserLoc);
 
-        //DEBUG:
-        //TestStaticLocations(locSjsuMapTopLeft, locSjsuMapTopRight, locSjsuMapBottomLeft, locSjsuMapBottomRight);
+
     }
 
     public void updateCurrentUserLocationOnMap() {
@@ -129,9 +128,8 @@ public class MapActivity extends AppCompatActivity {
     }
 
 
-    //Get text from AutoCompleteTextView
-    //Match to what we know -
-    //Get its coordinates - PlotPin
+    //Get text from AutoComplete
+    //Get coordinates
     public void btnSearchHandler(View v) {
 
         AutoCompleteTextView auto_text = (AutoCompleteTextView) findViewById(R.id.sjsumap_search_bar);
@@ -153,7 +151,7 @@ public class MapActivity extends AppCompatActivity {
         if (building_count == -1) {
             return;
         }
-        //Check only if user has entered a valid building
+
         if (marker != null) {
             RelativeLayout map_layout = (RelativeLayout) findViewById(R.id.activity_map);
             map_layout.removeView(marker);
@@ -169,8 +167,8 @@ public class MapActivity extends AppCompatActivity {
         float plotPixelX = (pixelTopLeftX + pixelTopRightX) / 2;
         float plotPixelY = (pixelTopRightY + pixelBottomRightY) / 2;
 
-        //Plot it
-        PlotPin(this, plotPixelX, plotPixelY);
+        //Plot
+        Plot(this, plotPixelX, plotPixelY);
 
     }
 
@@ -192,23 +190,24 @@ public class MapActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                // TODO Auto-generated method stub
-                //Log.d("MapActivity", "after text changed");
+
+
+
                 if (auto_text_view.getText().toString().equals("") || auto_text_view.getText().toString() == null) {
                     if (marker != null) {
-                        RelativeLayout map_layout = (RelativeLayout) findViewById(R.id.activity_map);
-                        map_layout.removeView(marker);
+                        RelativeLayout map = (RelativeLayout) findViewById(R.id.activity_map);
+                        map.removeView(marker);
                     }
                 }
             }
         });
     }
 
-    private void ProcessTouchCoordinate(View v, float x, float y) {
+    private void ProcessTouch(View v, float x, float y) {
 
         for (int i = 0; i < Constants.BUILDING_COUNT; i++) {
-            if (map_buildings[i].IsWithinPixelBounds(x, y)) {
-                //Toast.makeText(v.getContext(), map_buildings[i].building_name, Toast.LENGTH_SHORT).show();
+            if (map_buildings[i].IsWithinBounds(x, y)) {
+
                 Intent bldgIntent = new Intent(this, BuildingActivity.class);
                 bldgIntent.putExtra("BUILDING_DETAILS", new String[]{
                         map_buildings[i].building_name,
@@ -217,46 +216,46 @@ public class MapActivity extends AppCompatActivity {
                 });
 
                 bldgIntent.putExtra("BUILDING_NAME", map_buildings[i].getImage_resource_name());
+                System.out.println("loc:"+strCurrUserLoc);
                 bldgIntent.putExtra("COORDINATES", strCurrUserLoc);
                 bldgIntent.putExtra("BLDG_COORDINATES", map_buildings[i].coordinates);
                 startActivity(bldgIntent);
 
 
             }
-            //DEBUG:
-            //PlotPin(this, x + INT_XAXIS_PLOT_OFFSET, y + INT_YAXIS_PLOT_OFFSET);
+
         }
 
     }
 
     private Location GetLocationFromStrings(String strMap) {
-        Location location = ConvertStringToLatLng(strMap);
-        return location;
+        Location loc = ConvertStringToLatLng(strMap);
+        return loc;
     }
 
     public Location ConvertStringToLatLng(String strCoord) {
-        String[] latlong = strCoord.split(",");
-        double latitude = Double.parseDouble(latlong[0]);
-        double longitude = Double.parseDouble(latlong[1]);
+        String[] ltlg = strCoord.split(",");
+        double lat = Double.parseDouble(ltlg[0]);
+        double lon = Double.parseDouble(ltlg[1]);
 
-        //TRY: Put actual location provider here
+
         Location location = new Location("dummyprovider");
-        location.setLatitude(latitude);
-        location.setLongitude(longitude);
+        location.setLatitude(lat);
+        location.setLongitude(lon);
 
         return location;
     }
 
-
-    private void PlotPin(Context context, float x, float y) {
-        //Normalize incoming pixels
+    //function to plot
+    private void Plot(Context context, float x, float y) {
+        //Normalize
         x = x + Constants.INT_XAXIS_PLOT_OFFSET;
         y = y + Constants.INT_YAXIS_PLOT_OFFSET;
 
-        RelativeLayout map_layout = (RelativeLayout) findViewById(R.id.activity_map);
+        RelativeLayout map = (RelativeLayout) findViewById(R.id.activity_map);
         marker = new MarkerView(context);
         marker.set_x_y_coord(x, y);
-        map_layout.addView(marker);
+        map.addView(marker);
     }
 
 
@@ -265,13 +264,11 @@ public class MapActivity extends AppCompatActivity {
                                              Location locMapBottomLeft, Location locMapBottomRight,
                                              Location locCurrentUserLocation) {
 
-        //This is the angle the earth is tilted by - and the map is tilted by, in accordance with the static image
+        //calculate deviation of earth to get correct map location
         double angle = 10.0;
         double r = Math.toRadians(angle);
 
         double bearingTLtoTR = locMapTopLeft.bearingTo(locMapTopRight);
-        double distanceTLtoTR = locMapTopLeft.distanceTo(locMapTopRight);
-        double bearingTRtoTL = locMapTopRight.bearingTo(locMapTopLeft);
 
 
         double bearingTLtoCL = locMapTopLeft.bearingTo(locCurrentUserLocation);
@@ -285,11 +282,11 @@ public class MapActivity extends AppCompatActivity {
         double current_x_pixels = Constants.STATIC_PIXEL_DISTANCE * current_x_dist;
         double current_y_pixels = Constants.STATIC_PIXEL_DISTANCE * current_y_dist;
 
-        //Get the old points floated out
+        //Get the old points
         float current_X = (float) current_x_pixels;
         float current_Y = (float) current_y_pixels;
 
-        ////Let's rotate this about the top left
+
         float center_X = 13;
         float center_Y = 445;
 
@@ -301,34 +298,34 @@ public class MapActivity extends AppCompatActivity {
     }
 
     private void PlotCircle(Context context, float x, float y) {
-        //Normalize incoming pixels
+        //Normalize
         x = x + Constants.INT_XAXIS_PLOT_OFFSET;
         y = y + Constants.INT_YAXIS_PLOT_OFFSET + Constants.CURRENT_LOCATION_SCALE_CORRECTER;
 
-        RelativeLayout map_layout = (RelativeLayout) findViewById(R.id.activity_map);
+        RelativeLayout map = (RelativeLayout) findViewById(R.id.activity_map);
 
         if (circlemarker != null) {
-            map_layout.removeView(circlemarker);
+            map.removeView(circlemarker);
         }
 
         circlemarker = new CircleMarkerView(context);
         circlemarker.set_x_y_coord(x, y);
-        map_layout.addView(circlemarker);
+        map.addView(circlemarker);
     }
 
 
-    private void allignMapImage() {
-        //Get image dimensions
-        Drawable mapDrawable = sjsumapImageView.getDrawable();
-        float imageWidth = mapDrawable.getIntrinsicWidth();
-        float imageHeight = mapDrawable.getIntrinsicHeight();
+    private void allignImage() {
+        //image dimensions
+        Drawable map = sjsumapImageView.getDrawable();
+        float imageWidth = map.getIntrinsicWidth();
+        float imageHeight = map.getIntrinsicHeight();
 
-        //Get Screen dimensions
+        //Screen dimensions
         DisplayMetrics metrics = this.getResources().getDisplayMetrics();
         int screenWidth = metrics.widthPixels;
         int screenHeight = metrics.heightPixels;
 
-        //Now center the image to scale to the view's center
+        //center the image
         RectF mapDrawableRect = new RectF(0, 0, imageWidth, imageHeight);
         RectF viewImageRect = new RectF(0, 0, screenWidth, screenHeight);
         mapMatrix.setRectToRect(mapDrawableRect, viewImageRect, Matrix.ScaleToFit.CENTER);
@@ -338,77 +335,80 @@ public class MapActivity extends AppCompatActivity {
     }
 
     private class MarkerView extends View {
-        private float x_coord = 1000, y_coord = 1000;
+        private float x_coor = 1000, y_coor = 1000;
 
         public MarkerView(Context context) {
             super(context);
         }
 
         public void set_x_y_coord(float x, float y) {
-            x_coord = x;
-            y_coord = y;
+            x_coor = x;
+            y_coor = y;
         }
 
         @Override
         protected void onDraw(Canvas canvas) {
             Bitmap marker = BitmapFactory.decodeResource(getResources(), R.drawable.pin);
-            canvas.drawBitmap(marker, x_coord, y_coord, null);
+            canvas.drawBitmap(marker, x_coor, y_coor, null);
         }
     }
 
     private class CircleMarkerView extends View {
-        private float x_coord = 1000, y_coord = 1000;
+        private float x_coor = 1000, y_coor = 1000;
 
         public CircleMarkerView(Context context) {
             super(context);
         }
 
         public void set_x_y_coord(float x, float y) {
-            x_coord = x;
-            y_coord = y;
+            x_coor = x;
+            y_coor = y;
         }
 
         @Override
         protected void onDraw(Canvas canvas) {
             Bitmap marker = BitmapFactory.decodeResource(getResources(), R.drawable.current_small);
-            canvas.drawBitmap(marker, x_coord, y_coord, null);
+            canvas.drawBitmap(marker, x_coor, y_coor, null);
         }
     }
 
 
-    //Start user current location
+    // current location
     @TargetApi(Build.VERSION_CODES.M)
-    public void GetCurrentLocation(Context context) {
+    public void getUserLocation(Context context) {
         mLocationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        System.out.println("in");
+        Location loc;
+        boolean isEnabled = mLocationManager.isProviderEnabled(LocationProvider);
 
-        Location location;
-        boolean isNetworkEnabled = mLocationManager.isProviderEnabled(LocationProvider);
-
-        if (isNetworkEnabled) {
+        if (isEnabled) {
+            System.out.println("in1");
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                     && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                System.out.println("in");
                 return;
             }
-            location = mLocationManager.getLastKnownLocation(LocationProvider);
-
+            loc = mLocationManager.getLastKnownLocation(LocationProvider);
+            System.out.println("in"+loc);
             mLocationManager.requestLocationUpdates(LocationProvider, Constants.LOC_MIN_TIME, Constants.LOC_MIN_DISTANCE, mLocationListener);
 
-            if (location != null) {
-                strCurrUserLatitude = Location.convert(location.getLatitude(), Location.FORMAT_DEGREES);
-                strCurrUserLongitude = Location.convert(location.getLongitude(), Location.FORMAT_DEGREES);
+            if (loc != null) {
+                System.out.println("in");
+                strCurrUserLatitude = Location.convert(loc.getLatitude(), Location.FORMAT_DEGREES);
+                System.out.println("in +"+strCurrUserLatitude);
+                strCurrUserLongitude = Location.convert(loc.getLongitude(), Location.FORMAT_DEGREES);
                 strCurrUserLoc = strCurrUserLatitude + "," + strCurrUserLongitude;
-                locCurrLocation = location;
-                Log.d("MainActivity", "Location of user is currently: " + strCurrUserLoc);
+                locCurrLocation = loc;
+
                 updateCurrentUserLocationOnMap(); //when app starts up
                 return;
             }
         }
-        //BUG: fix for all versions of android
+
         requestPermissions(Constants.LOC_PERMS, Constants.LOC_REQ_CODE);
     }
 
-    //Let's handle user's location now
-    //First off define a listener for location changed events
+   //handle user location
     public final LocationListener mLocationListener = new LocationListener() {
         @Override
         public void onLocationChanged(final Location location) {
@@ -418,16 +418,12 @@ public class MapActivity extends AppCompatActivity {
             strCurrUserLoc = strCurrUserLatitude + "," + strCurrUserLongitude;
 
 
-            //String location_string = "geo:37.7749,-122.4194";
-            String location_string = "geo:" + strCurrUserLatitude + "," + strCurrUserLongitude;
-            Log.d("MainActivity", "Location changed: "+ location_string);
-
-            //Update current user location and strings
+            //Update user location
             strCurrUserLoc = strCurrUserLatitude + "," + strCurrUserLongitude;
             locCurrLocation = location;
 
-            //Call after current location is known to continuously plot user on map
-            updateCurrentUserLocationOnMap(); //When users location changes (once every minute?)
+            //plot user continuously on the map
+            updateCurrentUserLocationOnMap();
 
         }
 
@@ -444,7 +440,7 @@ public class MapActivity extends AppCompatActivity {
         }
     };
 
-    //Now we need to handle it after getting appropriate permissions:
+    //handle after getting permissions:
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == Constants.LOC_REQ_CODE) {
@@ -453,8 +449,7 @@ public class MapActivity extends AppCompatActivity {
                     && ActivityCompat.checkSelfPermission(this,
                     Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 mLocationManager.requestLocationUpdates(LocationProvider, Constants.LOC_MIN_TIME, Constants.LOC_MIN_DISTANCE, mLocationListener);
-                //DEBUG:
-                //mLocationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, mLocationListener, null);
+
             }
 
         }
@@ -471,16 +466,14 @@ public class MapActivity extends AppCompatActivity {
                         float viewX = screenX - v.getLeft();
                         float viewY = screenY - v.getTop();
 
-                        Log.d("MapActivity", "X: " + viewX + " Y: " + viewY + " ScreenX: " + screenX + " ScreenY:" + screenY);
 
-                        //DEBUG:
-                        //plotPin(v.getContext(), viewX, viewY);
-                        ProcessTouchCoordinate(v, viewX, viewY);
+
+                        ProcessTouch(v, viewX, viewY);
                         return true;
                     }
                     return false;
                 }
             };
 
-    //End of class
+
 }

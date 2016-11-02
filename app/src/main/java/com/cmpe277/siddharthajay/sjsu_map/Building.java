@@ -6,7 +6,6 @@ public class Building {
     public String building_name;
     public String address;
     public String coordinates;
-    public String image_name;
     public int image_resource_name;
 
 
@@ -23,8 +22,8 @@ public class Building {
 
     }
 
-    //Calculate if within bounds
-    public boolean IsWithinPixelBounds(float x, float y) {
+    //function to find out if in bounds
+    public boolean IsWithinBounds(float x, float y) {
 
         if (x > pixel_coordinates[Constants.TOP_LEFT_X] && x < pixel_coordinates[Constants.TOP_RIGHT_X]) {
             if (y > pixel_coordinates[Constants.TOP_RIGHT_Y] && y < pixel_coordinates[Constants.BOTTOM_RIGHT_Y]) {
@@ -35,10 +34,6 @@ public class Building {
         return false;
     }
 
-    public String getAddress() {
-        return address;
-    }
-
     public void setAddress(String address) {
         this.address = address;
     }
@@ -47,25 +42,8 @@ public class Building {
         return pixel_coordinates;
     }
 
-    public void setPixel_coordinates(float[] pixel_coordinates) {
-        this.pixel_coordinates = pixel_coordinates;
-    }
-
-    public String getCoordinates() {
-        return coordinates;
-    }
-
     public void setCoordinates(String coordinates) {
         this.coordinates = coordinates;
-    }
-
-
-    public String getImage_name() {
-        return image_name;
-    }
-
-    public void setImage_name(String image_name) {
-        this.image_name = image_name;
     }
 
     public int getImage_resource_name() {
